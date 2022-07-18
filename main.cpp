@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
-#include <algorithm>
 #include <SDL2/SDL.h>
 
 using namespace std;
@@ -43,19 +42,17 @@ int sign(float num){
 	}
 	
 }
-
-class Bullet{
-	
+// Class for Bullets
+class Bullet{	
 private:
-	float vx,vy;
-	float tx, ty;
-	float dis;
-	int hu;
+	float vx,vy; // Velocity
+	float tx, ty; // Target
+	float dis; // Distance Between Target and Bullet
 public:
-	float x,y;
+	float x,y; // Bullet Position
 	Bullet(float x, float y, float tx, float ty){
-		
-		this->x = x;
+		// Initialization
+		this->x = x; 
 		this->y = y;
 		this->tx = tx;
 		this->ty = ty;
@@ -65,8 +62,6 @@ public:
 	}
 	
 	void update(){
-		
-		
 		this->x += this->vx;		
 		this->y += this->vy;
 		
@@ -76,10 +71,9 @@ public:
 	}
 	
 	bool bulletDone(){
-		if(
-			(this->x > this->tx-2) && (this->x < this->tx + 2) 
-				&& (this->y > this->ty-2) && (this->y < this->ty + 2)
-			) {
+		// Bullet Collide or not 		
+		if((this->x > this->tx-2) && (this->x < this->tx + 2) 
+			&& (this->y > this->ty-2) && (this->y < this->ty + 2)) {
 			return true;
 		}
 		return false;
@@ -88,7 +82,7 @@ public:
 	
 	
 	void draw(SDL_Renderer *ren){
-		
+		//Graphics
 		SDL_SetRenderDrawColor(ren, 250, 250, 100, 255);
 		SDL_RenderDrawPoint(ren, this->x, this->y);		
 		SDL_RenderDrawPoint(ren, this->x-1, this->y-1);
@@ -98,22 +92,22 @@ public:
 
 class Object {
 	private:
-		float vx, vy;
-		float dx, dy;
-		float cx, cy;
-		double angle;
-		float range;
-		bool tInRange;
-		float rx,ry;
-		float rAngle;
-		vector<Bullet> bullets;
-		bool isBusy;
-		int busyWith;
+		float vx, vy; // Velocity
+		float dx, dy; // Random Destination
+		float cx, cy; // Diretion
+		double angle; // Angle of  Direction
+		float range; // Range of Object
+		bool tInRange; // Check if target in range
+		float rx,ry; // Range Rudder
+		float rAngle; // Rudder Angle
+		vector<Bullet> bullets; // Bullets Vector
+		bool isBusy; // Check if Object busy in firing
+		int busyWith; // Id of object which is hitting by this objects bullets
 	public:
-		float x, y;
-		float radius;
-		float life;
-		float id;
+		float x, y; // Object Position
+		float radius; // Object Radius
+		float life; // Object Life
+		float id; // Object ID
 	
 	Object(float x, float y, int id){
 		
@@ -150,7 +144,7 @@ class Object {
 			this->angle = atan2((this->dy - this->y), (this->dx - this->x));
 		}
 		this->tInRange = false;
-		if(this->x > this->dx+10 || this->x < this->dx-10 || this->y > this->dy+10 || this->y < this->dy-10)
+		if(this->x > this->dx+10 || this->x < this->dx-10 || this->y > this->dy+10 || this->y < this->dy-10) // Check if object on destination...
 		{	
 			
 			float dis = sqrt(pow(this->dx - this->x, 2) + pow(this->dy - this->y, 2));
@@ -168,16 +162,15 @@ class Object {
 		this->rx = this->range * cos(this->rAngle);
 		this->ry = this->range * sin(this->rAngle);
 		
-		if(rAngle > TWO_PI){
+		if(rAngle > TWO_PI){ // check if rudder rotation is more than 2 times of PI.
 			rAngle = 0;
 		}
 		rAngle += 0.05;
 		
 		for(unsigned int n = 0; n < this->bullets.size(); n++){
-			
 			this->bullets[n].update();
 			if(this->bullets[n].bulletDone()){
-				this->bullets.erase(this->bullets.begin() + n);
+				this->bullets.erase(this->bullets.begin() + n); // Delete used bullets
 			}
 			
 			
@@ -260,11 +253,9 @@ class Object {
 		this->dy = dy;
 	}
 	
-	
-	
-	
-	
 	void draw(SDL_Renderer *ren){
+		
+		//Graphics
 		
 		for(unsigned int n = 0; n < this->bullets.size(); n++){
 			
@@ -311,19 +302,19 @@ class Object {
 
 
 int main(int argc, char **argv){
-
+	// SDL Window Creation
     SDL_Window *win = SDL_CreateWindow("War Between Randomly Moving Circular Objects| Abthahi Ahmed Rifat", 100,100, 1000, 600, SDL_WINDOW_SHOWN);
     if(!win){
         cout<<"Error in creating Window"<<endl;
         exit(1);
     }
-
+	//SDL Renderer Creation
     SDL_Renderer *ren = SDL_CreateRenderer(win, -1, 0);
     if(!ren){
         cout<<"Error in creating Renderer"<<endl;
         exit(1);
     }
-
+	// Event Create
     SDL_Event event;
 	
 	int width, height;
@@ -336,15 +327,17 @@ int main(int argc, char **argv){
 	
 	vector<Object> obj;
 	
+	// Adding Objects on Ground.
 	obj.push_back(Object(random(50, width-50), random(50, height-50), 1));	
 	obj.push_back(Object(random(50, width-50), random(50, height-50), 2));
 	obj.push_back(Object(random(50, width-50), random(50, height-50), 3));	
 	obj.push_back(Object(random(50, width-50), random(50, height-50), 4));
 
 
-
+	
 	
 	while(running){
+		// Background color
 		SDL_SetRenderDrawColor(ren, 0, 0, 0, 255);
 		SDL_RenderClear(ren);
 		
@@ -373,12 +366,12 @@ int main(int argc, char **argv){
 		
 		
 		
-		
+	// Event listener
         SDL_PollEvent(&event);
         if(event.type == SDL_QUIT){
             running = false;
         }
-		
+	// Render Drawing
         SDL_RenderPresent(ren);
 		SDL_Delay(1000/70);
 		random(0,1000);
